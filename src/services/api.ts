@@ -12,7 +12,7 @@ import type {
   ProfileUpdateRequest,
 } from './types';
 
-const API_BASE_URL = 'https://inventory.cloduns.be/api/v1';
+const API_BASE_URL = 'https://inventory.cloudns.be/api/v1';
 
 class APIService {
   private baseURL: string;
