@@ -93,6 +93,14 @@ jobs:
       - name: 🏥 Health check
         run: |
           echo "=== Performing health checks ==="
+          echo "=== Checking container status ==="
+          docker ps
+          echo "=== Checking if nginx is running inside container ==="
+          docker exec storefront-app ps aux | grep nginx || echo "Nginx process not found"
+          echo "=== Checking nginx config ==="
+          docker exec storefront-app nginx -t 2>&1 || true
+          echo "=== Checking if port 3000 is listening ==="
+          docker exec storefront-app netstat -tlnp 2>/dev/null || docker exec storefront-app ss -tlnp 2>/dev/null || true
           for i in {1..15}; do
             echo "Attempt $i/15..."
             if curl -sf http://localhost:3000/ > /dev/null 2>&1; then
