@@ -1,0 +1,127 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build Frontend
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: 📚 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Run linter
+        run: npm run lint
+
+      - name: 🏗️ Build for production
+        run: npm run build
+
+      - name: 📤 Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-build
+          path: dist/
+          retention-days: 1
+
+  deploy:
+    name: Deploy Storefront
+    runs-on: self-hosted
+    needs: build
+    if: github.event_name == 'push'
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📥 Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-build
+          path: dist/
+
+      - name: 📋 Check Docker and Docker Compose
+        run: |
+          echo "=== Docker Version ==="
+          docker --version
+          echo "=== Docker Compose Version ==="
+          docker-compose --version
+          echo "=== Current Containers ==="
+          docker ps -a
+
+      - name: 🛑 Stop and remove old containers
+        run: |
+          echo "=== Stopping containers ==="
+          docker-compose down -v --remove-orphans 2>/dev/null || true
+          echo "=== Removing dangling nginx containers ==="
+          docker rm -f storefront-app 2>/dev/null || true
+          docker stop $(docker ps -q --filter "ancestor=nginx:alpine") 2>/dev/null || true
+          echo "=== Pruning unused networks ==="
+          docker network prune -f 2>/dev/null || true
+          echo "=== Waiting for cleanup ==="
+          sleep 2
+          echo "=== Containers after cleanup ==="
+          docker ps -a
+
+      - name: 🐳 Build Docker image
+        run: |
+          echo "=== Building Docker image ==="
+          docker build -t storefront:latest .
+          echo "=== Image built successfully ==="
+          docker images | grep storefront
+
+      - name: 🚀 Start containers
+        run: |
+          echo "=== Starting docker-compose ==="
+          docker-compose up -d
+          echo "=== Waiting for services to be ready ==="
+          sleep 3
+          echo "=== Container status ==="
+          docker-compose ps
+
+      - name: 🏥 Health check
+        run: |
+          echo "=== Performing health checks ==="
+          for i in {1..15}; do
+            echo "Attempt $i/15..."
+            if curl -sf http://localhost:3000/ > /dev/null 2>&1; then
+              echo "✅ Application is healthy!"
+              curl -I http://localhost:3000/
+              exit 0
+            fi
+            echo "⏳ Waiting... ($i/15)"
+            sleep 2
+          done
+          echo "❌ Health check failed after 30 seconds"
+          echo "=== Container logs ==="
+          docker-compose logs --tail=50
+          exit 1
+
+      - name: 📊 Show deployment status
+        if: always()
+        run: |
+          echo "## 🚀 Deployment Status"
+          echo ""
+          echo "### Container Status"
+          docker-compose ps
+          echo ""
+          echo "### Recent Logs"
+          docker-compose logs --tail=20
+          echo ""
+          echo "### Application URL"
+          echo "🌐 http://localhost:3000/"
+          echo ""
+          echo "### Timestamp"
+          echo "⏰ $(date)"

@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  storefront:
+    image: storefront:latest
+    container_name: storefront-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    networks:
+      - storefront-network
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000/",
+        ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - /var/log/nginx:/var/log/nginx:rw
+
+networks:
+  storefront-network:
+    driver: bridge

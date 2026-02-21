@@ -1,0 +1,10 @@
+node_modules
+dist
+.git
+.github
+*.md
+.env
+.env.local
+.eslintrc.cjs
+.vscode
+.idea
