@@ -6,10 +6,8 @@ import { ProductGallery } from '../components/product/ProductGallery';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { useCart } from '../context/CartContext';
-import api from '../services/api';
+import api, { getMediaUrl } from '../services/api';
 import type { Product } from '../services/types';
-
-const API_BASE_URL = 'https://inventory.cloudns.be';
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -43,9 +41,7 @@ export function ProductDetailPage() {
       name: product.name,
       price: parseFloat(product.price),
       quantity,
-      image: product.main_image?.image 
-        ? `${API_BASE_URL}${product.main_image.image}`
-        : null,
+      image: getMediaUrl(product.main_image?.image),
       maxStock: product.stock
     });
     setQuantity(1);
@@ -58,9 +54,7 @@ export function ProductDetailPage() {
       name: product.name,
       price: parseFloat(product.price),
       quantity,
-      image: product.main_image?.image 
-        ? `${API_BASE_URL}${product.main_image.image}`
-        : null,
+      image: getMediaUrl(product.main_image?.image),
       maxStock: product.stock
     });
     navigate('/checkout');

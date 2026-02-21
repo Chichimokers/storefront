@@ -12,7 +12,14 @@ import type {
   ProfileUpdateRequest,
 } from './types';
 
-const API_BASE_URL = 'https://inventory.cloudns.be/api/v1';
+export const API_BASE_URL = 'https://inventory.cloudns.be';
+export const API_URL = `${API_BASE_URL}/api/v1`;
+
+export function getMediaUrl(path: string | null | undefined): string | null {
+  if (!path) return null;
+  if (path.startsWith('http')) return path;
+  return `${API_BASE_URL}${path}`;
+}
 
 class APIService {
   private baseURL: string;
@@ -21,7 +28,7 @@ class APIService {
   private refreshSubscribers: ((token: string) => void)[];
 
   constructor() {
-    this.baseURL = API_BASE_URL;
+    this.baseURL = API_URL;
     this.tokens = this.loadTokens();
     this.isRefreshing = false;
     this.refreshSubscribers = [];

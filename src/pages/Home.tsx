@@ -3,10 +3,8 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { Layout } from '../components/layout/Layout';
 import { ProductGrid } from '../components/product/ProductGrid';
-import api from '../services/api';
+import api, { getMediaUrl } from '../services/api';
 import type { Product, Category } from '../services/types';
-
-const API_BASE_URL = 'https://inventory.cloduns.be';
 
 export function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
@@ -89,7 +87,7 @@ export function HomePage() {
                 <div className="border border-gray-200 rounded-lg p-4 text-center hover:shadow-lg transition-shadow">
                   {category.image && (
                     <img
-                      src={`${API_BASE_URL}${category.image}`}
+                      src={getMediaUrl(category.image) ?? ''}
                       alt={category.name}
                       className="w-16 h-16 mx-auto mb-2 object-cover rounded-full"
                     />

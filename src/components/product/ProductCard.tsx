@@ -2,9 +2,8 @@ import { Link } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useCart } from '../../context/CartContext';
+import { getMediaUrl } from '../../services/api';
 import type { Product } from '../../services/types';
-
-const API_BASE_URL = 'https://inventory.cloudns.be';
 
 interface ProductCardProps {
   product: Product;
@@ -13,9 +12,7 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
 
-  const imageUrl = product.main_image?.image 
-    ? `${API_BASE_URL}${product.main_image.image}`
-    : '/placeholder.png';
+  const imageUrl = getMediaUrl(product.main_image?.image) ?? '/placeholder.png';
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();

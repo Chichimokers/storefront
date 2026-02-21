@@ -1,6 +1,5 @@
 import { useState } from 'react';
-
-const API_BASE_URL = 'https://inventory.cloudns.be';
+import { getMediaUrl } from '../../services/api';
 
 interface ProductGalleryProps {
   images: { id: number; image: string; is_primary: boolean }[];
@@ -18,7 +17,7 @@ export function ProductGallery({ images }: ProductGalleryProps) {
   }
 
   const selectedImage = images[selectedIndex];
-  const mainImageUrl = selectedImage ? `${API_BASE_URL}${selectedImage.image}` : '/placeholder.png';
+  const mainImageUrl = getMediaUrl(selectedImage?.image) ?? '/placeholder.png';
 
   return (
     <div className="space-y-4">
@@ -40,7 +39,7 @@ export function ProductGallery({ images }: ProductGalleryProps) {
               }`}
             >
               <img
-                src={`${API_BASE_URL}${image.image}`}
+                src={getMediaUrl(image.image) ?? '/placeholder.png'}
                 alt={`Imagen ${index + 1}`}
                 className="w-full h-full object-cover"
               />
