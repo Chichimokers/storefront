@@ -281,6 +281,176 @@ class APIService {
   async getOrder(id: number): Promise<Order> {
     return this.get<Order>(`/orders/${id}/`);
   }
+
+  async updateOrderStatus(id: number, status: string): Promise<Order> {
+    return this.patch<Order>(`/orders/${id}/`, { status });
+  }
+
+  // Admin Dashboard
+  async getAdminDashboard(): Promise<{
+    orders: { total: number; pending: number; processing: number; completed: number; cancelled: number };
+    products: { total: number; active: number };
+    users: { total: number };
+    revenue: string;
+  }> {
+    return this.get('/admin/dashboard/');
+  }
+
+  // Admin: All Orders
+  async getAllOrders(params?: { status?: string; search?: string; ordering?: string }): Promise<{ count: number; results: Order[] }> {
+    const searchParams = new URLSearchParams();
+    if (params?.status) searchParams.append('status', params.status);
+    if (params?.search) searchParams.append('search', params.search);
+    if (params?.ordering) searchParams.append('ordering', params.ordering);
+    const query = searchParams.toString();
+    return this.get<{ count: number; results: Order[] }>(`/admin/all-orders/${query ? `?${query}` : ''}`);
+  }
+
+  async getAdminOrder(id: number): Promise<Order> {
+    return this.get<Order>(`/admin/all-orders/${id}/`);
+  }
+
+  async updateAdminOrderStatus(id: number, status: string): Promise<Order> {
+    return this.patch<Order>(`/admin/all-orders/${id}/`, { status });
+  }
+
+  async deleteAdminOrder(id: number): Promise<void> {
+    return this.delete<void>(`/admin/all-orders/${id}/`);
+  }
+
+  // Admin: Products
+  async getAdminProducts(params?: { search?: string; category?: number; ordering?: string }): Promise<{ count: number; results: Product[] }> {
+    const searchParams = new URLSearchParams();
+    if (params?.search) searchParams.append('search', params.search);
+    if (params?.category) searchParams.append('category', params.category.toString());
+    if (params?.ordering) searchParams.append('ordering', params.ordering);
+    const query = searchParams.toString();
+    return this.get<{ count: number; results: Product[] }>(`/admin/products/${query ? `?${query}` : ''}`);
+  }
+
+  async getAdminProduct(id: number): Promise<Product> {
+    return this.get<Product>(`/admin/products/${id}/`);
+  }
+
+  async createProduct(data: {
+    name: string;
+    description?: string;
+    price: number;
+    compare_price?: number | null;
+    stock: number;
+    category: number | null;
+    subcategory?: number | null;
+    is_active: boolean;
+    image_ids?: number[];
+  }): Promise<Product> {
+    return this.post<Product>('/admin/products/', data);
+  }
+
+  async updateProduct(id: number, data: {
+    name?: string;
+    description?: string;
+    price?: number;
+    compare_price?: number | null;
+    stock?: number;
+    category?: number | null;
+    subcategory?: number | null;
+    is_active?: boolean;
+    image_ids?: number[];
+  }): Promise<Product> {
+    return this.put<Product>(`/admin/products/${id}/`, data);
+  }
+
+  async deleteProduct(id: number): Promise<void> {
+    return this.delete<void>(`/admin/products/${id}/`);
+  }
+
+  // Admin: Categories
+  async getAdminCategories(): Promise<{ count: number; results: Category[] }> {
+    return this.get<{ count: number; results: Category[] }>('/admin/categories/');
+  }
+
+  async createCategory(data: {
+    name: string;
+    description?: string;
+    parent?: number | null;
+    is_active: boolean;
+  }): Promise<Category> {
+    return this.post<Category>('/admin/categories/', data);
+  }
+
+  async updateCategory(id: number, data: {
+    name?: string;
+    description?: string;
+    parent?: number | null;
+    is_active?: boolean;
+  }): Promise<Category> {
+    return this.put<Category>(`/admin/categories/${id}/`, data);
+  }
+
+  async deleteCategory(id: number): Promise<void> {
+    return this.delete<void>(`/admin/categories/${id}/`);
+  }
+
+  // Admin: Images
+  async uploadImage(file: File): Promise<{ id: number; image: string; alt_text: string; is_primary: boolean }> {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    const response = await fetch(`${this.baseURL}/admin/product-images/`, {
+      method: 'POST',
+      headers: this.getAuthHeader(),
+      body: formData
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to upload image');
+    }
+    
+    return response.json();
+  }
+
+  async getAdminImages(): Promise<{ id: number; image: string; alt_text: string; is_primary: boolean }[]> {
+    return this.get<{ id: number; image: string; alt_text: string; is_primary: boolean }[]>('/admin/product-images/');
+  }
+
+  async deleteImage(id: number): Promise<void> {
+    return this.delete<void>(`/admin/product-images/${id}/`);
+  }
+
+  // Admin: Users
+  async getAdminUsers(params?: { search?: string; ordering?: string }): Promise<{ count: number; results: User[] }> {
+    const searchParams = new URLSearchParams();
+    if (params?.search) searchParams.append('search', params.search);
+    if (params?.ordering) searchParams.append('ordering', params.ordering);
+    const query = searchParams.toString();
+    return this.get<{ count: number; results: User[] }>(`/admin/users/${query ? `?${query}` : ''}`);
+  }
+
+  async createUser(data: {
+    email: string;
+    username: string;
+    password: string;
+    password_confirm: string;
+    first_name?: string;
+    last_name?: string;
+    is_staff?: boolean;
+    is_active?: boolean;
+  }): Promise<User> {
+    return this.post<User>('/admin/users/', data);
+  }
+
+  async updateUser(id: number, data: {
+    first_name?: string;
+    last_name?: string;
+    is_staff?: boolean;
+    is_active?: boolean;
+  }): Promise<User> {
+    return this.put<User>(`/admin/users/${id}/`, data);
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    return this.delete<void>(`/admin/users/${id}/`);
+  }
 }
 
 export const api = new APIService();

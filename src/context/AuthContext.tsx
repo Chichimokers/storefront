@@ -5,6 +5,7 @@ import type { User } from '../services/types';
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, username: string, password: string, passwordConfirm: string, firstName: string, lastName: string, phone: string) => Promise<void>;
@@ -71,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         isAuthenticated: !!user,
+        isAdmin: !!(user?.is_staff || user?.is_superuser),
         loading,
         login,
         register,

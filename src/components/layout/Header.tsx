@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, Menu, X, LogOut, Package, LogIn } from 'lucide-react';
+import { ShoppingCart, User, Menu, X, LogOut, Package, LogIn, Settings } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
@@ -8,7 +8,7 @@ import api from '../../services/api';
 import type { Category } from '../../services/types';
 
 export function Header() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const { itemCount } = useCart();
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -97,6 +97,16 @@ export function Header() {
                       <p className="text-xs text-gray-500">{user?.email}</p>
                     </div>
                     <div className="py-1">
+                      {isAdmin && (
+                        <Link
+                          to="/panel"
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:bg-gray-100"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <Settings className="h-4 w-4" />
+                          Panel Admin
+                        </Link>
+                      )}
                       <Link
                         to="/profile"
                         className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

@@ -49,6 +49,9 @@ export interface User {
   phone: string;
   address: string;
   created_at: string;
+  is_staff: boolean;
+  is_superuser: boolean;
+  is_active: boolean;
 }
 
 export interface Tokens {
@@ -116,4 +119,37 @@ export interface ProfileUpdateRequest {
   last_name?: string;
   phone?: string;
   address?: string;
+}
+
+export interface ProductCreateUpdate {
+  name: string;
+  description?: string;
+  price: number;
+  compare_price?: number | null;
+  stock: number;
+  category: number | null;
+  subcategory?: number | null;
+  is_active: boolean;
+  image_ids?: number[];
+}
+
+export interface CategoryCreateUpdate {
+  name: string;
+  description?: string;
+  parent?: number | null;
+  is_active: boolean;
+}
+
+export interface ProductImage {
+  id: number;
+  image: string;
+  alt_text?: string;
+  is_primary: boolean;
+}
+
+export interface DashboardStats {
+  total_products: number;
+  total_orders: number;
+  pending_orders: number;
+  total_users: number;
 }
