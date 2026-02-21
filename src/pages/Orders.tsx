@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Package } from 'lucide-react';
-import { Layout } from '../../components/layout/Layout';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
-import { useAuth } from '../../context/AuthContext';
-import api from '../../services/api';
-import type { Order } from '../../services/types';
+
+
+
+import { Layout } from '../components/layout/Layout';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
+import { Order } from '../services/types';
 
 export function OrdersPage() {
   const { isAuthenticated } = useAuth();

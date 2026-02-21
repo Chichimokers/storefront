@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { Layout } from '../../components/layout/Layout';
-import { ProductGrid } from '../../components/product/ProductGrid';
-import api from '../../services/api';
-import type { Product, Category } from '../../services/types';
+import { Layout } from '../components/layout/Layout';
+import { ProductGrid } from '../components/product/ProductGrid';
+import api from '../services/api';
+import type { Product, Category } from '../services/types';
 
 const API_BASE_URL = 'https://inventory.cloduns.be';
 

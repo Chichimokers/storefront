@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Layout } from '../../components/layout/Layout';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { Label } from '../../components/ui/Label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
-import { useAuth } from '../../context/AuthContext';
-import { useNotification } from '../../context/NotificationContext';
+import { Layout } from '../components/layout/Layout';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
+import { Label } from '../components/ui/Label';
+import { Input } from '../components/ui/Input';
+import { Button } from '../components/ui/Button';
+import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -50,7 +50,7 @@ export function RegisterPage() {
       );
       showNotification('Cuenta creada exitosamente', 'success');
       navigate('/');
-    } catch (_error) {
+    } catch {
       showNotification('Error al crear la cuenta', 'error');
     } finally {
       setLoading(false);

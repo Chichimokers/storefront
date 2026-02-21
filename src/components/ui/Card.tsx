@@ -41,6 +41,17 @@ export function CardTitle({ className, children, ...props }: CardProps) {
   );
 }
 
+export function CardDescription({ className, children, ...props }: CardProps) {
+  return (
+    <p
+      className={clsx('text-sm text-gray-500', className)}
+      {...props}
+    >
+      {children}
+    </p>
+  );
+}
+
 export function CardContent({ className, children, ...props }: CardProps) {
   return (
     <div className={clsx('p-6 pt-0', className)} {...props}>

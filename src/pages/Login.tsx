@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Layout } from '../../components/layout/Layout';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { Label } from '../../components/ui/Label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
-import { useAuth } from '../../context/AuthContext';
-import { useNotification } from '../../context/NotificationContext';
+import { Layout } from '../components/layout/Layout';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { Label } from '../components/ui/Label';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
+import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ export function LoginPage() {
       showNotification('Bienvenido de nuevo', 'success');
       const next = searchParams.get('next') || '/';
       navigate(next);
-    } catch (_error) {
+    } catch {
       showNotification('Credenciales incorrectas', 'error');
     } finally {
       setLoading(false);

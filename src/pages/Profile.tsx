@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Layout } from '../../components/layout/Layout';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { Label } from '../../components/ui/Label';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
-import { useAuth } from '../../context/AuthContext';
-import { useNotification } from '../../context/NotificationContext';
+import { Layout } from '../components/layout/Layout';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { Label } from '../components/ui/Label';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
+import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 
 export function ProfilePage() {
   const { user, updateProfile } = useAuth();
@@ -37,7 +37,7 @@ export function ProfilePage() {
     try {
       await updateProfile(formData);
       showNotification('Perfil actualizado correctamente', 'success');
-    } catch (_error) {
+    } catch {
       showNotification('Error al actualizar el perfil', 'error');
     } finally {
       setLoading(false);

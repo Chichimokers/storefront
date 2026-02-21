@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { Layout } from '../../components/layout/Layout';
-import { ProductGrid } from '../../components/product/ProductGrid';
-import { Button } from '../../components/ui/Button';
-import api from '../../services/api';
-import type { Product, Category } from '../../services/types';
+import { Layout } from '../components/layout/Layout';
+import { ProductGrid } from '../components/product/ProductGrid';
+import { Button } from '../components/ui/Button';
+import api from '../services/api';
+import type { Product, Category } from '../services/types';
 
 export function CategoryPage() {
   const { id } = useParams<{ id: string }>();

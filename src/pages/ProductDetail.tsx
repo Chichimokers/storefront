@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Minus, Plus, ArrowLeft } from 'lucide-react';
-import { Layout } from '../../components/layout/Layout';
-import { ProductGallery } from '../../components/product/ProductGallery';
-import { Button } from '../../components/ui/Button';
-import { Badge } from '../../components/ui/Badge';
-import { useCart } from '../../context/CartContext';
-import api from '../../services/api';
-import type { Product } from '../../services/types';
+import { Layout } from '../components/layout/Layout';
+import { ProductGallery } from '../components/product/ProductGallery';
+import { Button } from '../components/ui/Button';
+import { Badge } from '../components/ui/Badge';
+import { useCart } from '../context/CartContext';
+import api from '../services/api';
+import type { Product } from '../services/types';
 
 const API_BASE_URL = 'https://inventory.cloduns.be';
 

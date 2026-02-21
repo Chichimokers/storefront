@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { Trash2, Minus, Plus, ShoppingBag } from 'lucide-react';
-import { Layout } from '../../components/layout/Layout';
-import { Button } from '../../components/ui/Button';
-import { Card, CardContent } from '../../components/ui/Card';
-import { useCart } from '../../context/CartContext';
+import { Layout } from '../components/layout/Layout';
+import { Button } from '../components/ui/Button';
+import { Card, CardContent } from '../components/ui/Card';
+import { useCart } from '../context/CartContext';
 
 export function CartPage() {
   const { items, total, updateQuantity, removeItem, clearCart } = useCart();

@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Layout } from '../../components/layout/Layout';
-import { ProductGrid } from '../../components/product/ProductGrid';
-import { Input } from '../../components/ui/Input';
-import { Select } from '../../components/ui/Select';
-import { Button } from '../../components/ui/Button';
-import api from '../../services/api';
-import type { Product, Category } from '../../services/types';
+import { Layout } from '../components/layout/Layout';
+import { ProductGrid } from '../components/product/ProductGrid';
+import { Input } from '../components/ui/Input';
+import { Select } from '../components/ui/Select';
+import { Button } from '../components/ui/Button';
+import api from '../services/api';
+import type { Product, Category } from '../services/types';
 
 export function CatalogPage() {
   const [searchParams, setSearchParams] = useSearchParams();
