@@ -29,7 +29,7 @@ export function LoginPage() {
       showNotification('Bienvenido de nuevo', 'success');
       const next = searchParams.get('next') || '/';
       navigate(next);
-    } catch (error) {
+    } catch (_error) {
       showNotification('Credenciales incorrectas', 'error');
     } finally {
       setLoading(false);

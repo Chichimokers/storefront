@@ -15,19 +15,21 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const CART_STORAGE_KEY = 'cart';
 
-export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
-
-  useEffect(() => {
-    const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-    if (savedCart) {
-      try {
-        setItems(JSON.parse(savedCart));
-      } catch {
-        localStorage.removeItem(CART_STORAGE_KEY);
-      }
+function getInitialCart(): CartItem[] {
+  if (typeof window === 'undefined') return [];
+  const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+  if (savedCart) {
+    try {
+      return JSON.parse(savedCart);
+    } catch {
+      localStorage.removeItem(CART_STORAGE_KEY);
     }
-  }, []);
+  }
+  return [];
+}
+
+export function CartProvider({ children }: { children: ReactNode }) {
+  const [items, setItems] = useState<CartItem[]>(getInitialCart);
 
   useEffect(() => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));

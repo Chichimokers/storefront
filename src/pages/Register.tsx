@@ -50,7 +50,7 @@ export function RegisterPage() {
       );
       showNotification('Cuenta creada exitosamente', 'success');
       navigate('/');
-    } catch (error) {
+    } catch (_error) {
       showNotification('Error al crear la cuenta', 'error');
     } finally {
       setLoading(false);

@@ -8,8 +8,6 @@ import { Button } from '../../components/ui/Button';
 import api from '../../services/api';
 import type { Product, Category } from '../../services/types';
 
-const API_BASE_URL = 'https://inventory.cloduns.be';
-
 export function CatalogPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);

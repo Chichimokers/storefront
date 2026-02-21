@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Layout } from '../../components/layout/Layout';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -12,7 +12,6 @@ import api from '../../services/api';
 
 export function CheckoutPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { items, total, clearCart } = useCart();
   const { user, isAuthenticated } = useAuth();
   const { showNotification } = useNotification();

@@ -6,11 +6,9 @@ import { Label } from '../../components/ui/Label';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
-import api from '../../services/api';
-import type { User } from '../../services/types';
 
 export function ProfilePage() {
-  const { user, updateProfile, refreshUser } = useAuth();
+  const { user, updateProfile } = useAuth();
   const { showNotification } = useNotification();
 
   const [loading, setLoading] = useState(false);
@@ -39,7 +37,7 @@ export function ProfilePage() {
     try {
       await updateProfile(formData);
       showNotification('Perfil actualizado correctamente', 'success');
-    } catch (error) {
+    } catch (_error) {
       showNotification('Error al actualizar el perfil', 'error');
     } finally {
       setLoading(false);

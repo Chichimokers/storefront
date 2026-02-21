@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { Layout } from '../../components/layout/Layout';
 import { ProductGrid } from '../../components/product/ProductGrid';
-import { ProductCard } from '../../components/product/ProductCard';
 import api from '../../services/api';
 import type { Product, Category } from '../../services/types';
 

@@ -5,8 +5,6 @@ import { Button } from '../../components/ui/Button';
 import { Card, CardContent } from '../../components/ui/Card';
 import { useCart } from '../../context/CartContext';
 
-const API_BASE_URL = 'https://inventory.cloduns.be';
-
 export function CartPage() {
   const { items, total, updateQuantity, removeItem, clearCart } = useCart();
 
