@@ -21,14 +21,28 @@ export function CategoryPage() {
       if (!id) return;
       
       try {
-        const [categoryData, productsData] = await Promise.all([
-          api.getCategories().then(cats => cats.find(c => c.id === parseInt(id))),
+        const [allCategories, productsData] = await Promise.all([
+          api.getCategories(),
           api.getProducts({ category: parseInt(id), page: 1 })
         ]);
+        
+        const safeCategories = Array.isArray(allCategories) 
+          ? allCategories 
+          : (allCategories as unknown as { results?: Category[] })?.results || [];
+        
+        const categoryData = safeCategories.find(c => c.id === parseInt(id));
+        
+        const safeProducts = productsData && typeof productsData === 'object' && 'results' in productsData
+          ? (productsData as unknown as { results: Product[] }).results
+          : Array.isArray(productsData) ? productsData : [];
 
         setCategory(categoryData || null);
-        setProducts(productsData.results);
-        setTotalPages(Math.ceil(productsData.count / 20));
+        setProducts(safeProducts);
+        
+        const total = productsData && typeof productsData === 'object' && 'count' in productsData
+          ? (productsData as unknown as { count: number }).count
+          : safeProducts.length;
+        setTotalPages(Math.ceil(total / 20));
       } catch (error) {
         console.error('Error fetching category:', error);
         navigate('/products');

@@ -22,11 +22,20 @@ export function HomePage() {
           api.getProducts({ ordering: '-created_at', page: 1 }),
           api.getCategories()
         ]);
-        setFeaturedProducts(featured);
-        setRecentProducts(recent.results.slice(0, 8));
-        setCategories(cats.slice(0, 6));
+        
+        const safeCategories = Array.isArray(cats) ? cats : (cats as unknown as { results?: Category[] })?.results || [];
+        const safeRecent = recent && typeof recent === 'object' && 'results' in recent 
+          ? (recent as unknown as { results: Product[] }).results 
+          : Array.isArray(recent) ? recent : [];
+        
+        setFeaturedProducts(Array.isArray(featured) ? featured : []);
+        setRecentProducts(safeRecent.slice(0, 8));
+        setCategories(safeCategories.slice(0, 6));
       } catch (error) {
         console.error('Error fetching data:', error);
+        setFeaturedProducts([]);
+        setRecentProducts([]);
+        setCategories([]);
       } finally {
         setLoading(false);
       }

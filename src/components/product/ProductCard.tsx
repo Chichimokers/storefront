@@ -4,7 +4,7 @@ import { Button } from '../ui/Button';
 import { useCart } from '../../context/CartContext';
 import type { Product } from '../../services/types';
 
-const API_BASE_URL = 'https://inventory.cloduns.be';
+const API_BASE_URL = 'https://inventory.cloudns.be';
 
 interface ProductCardProps {
   product: Product;

@@ -9,7 +9,7 @@ import { useCart } from '../context/CartContext';
 import api from '../services/api';
 import type { Product } from '../services/types';
 
-const API_BASE_URL = 'https://inventory.cloduns.be';
+const API_BASE_URL = 'https://inventory.cloudns.be';
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();

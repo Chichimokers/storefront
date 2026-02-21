@@ -16,7 +16,18 @@ export function Header() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   useEffect(() => {
-    api.getCategories().then(setCategories).catch(console.error);
+    api.getCategories()
+      .then(data => {
+        if (Array.isArray(data)) {
+          setCategories(data);
+        } else if (data && Array.isArray((data as { results?: Category[] }).results)) {
+          setCategories((data as { results: Category[] }).results);
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching categories:', err);
+        setCategories([]);
+      });
   }, []);
 
   const handleLogout = async () => {

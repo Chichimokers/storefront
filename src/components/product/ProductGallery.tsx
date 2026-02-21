@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const API_BASE_URL = 'https://inventory.cloduns.be';
+const API_BASE_URL = 'https://inventory.cloudns.be';
 
 interface ProductGalleryProps {
   images: { id: number; image: string; is_primary: boolean }[];
