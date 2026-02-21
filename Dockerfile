@@ -11,7 +11,7 @@ COPY tsconfig.json ./
 COPY index.html ./
 COPY eslint.config.js ./
 
-RUN npm ci
+RUN npm install
 
 COPY src ./src
 COPY public ./public
