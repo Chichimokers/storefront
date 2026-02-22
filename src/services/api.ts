@@ -135,11 +135,24 @@ class APIService {
         }
       } else {
         return new Promise<T>((resolve, reject) => {
-          this.subscribeTokenRefresh((token) => {
-            headers['Authorization'] = `Bearer ${token}`;
-            fetch(url, { ...options, headers })
-              .then(resolve)
-              .catch(reject);
+          this.subscribeTokenRefresh(async (token) => {
+            try {
+              headers['Authorization'] = `Bearer ${token}`;
+              const response = await fetch(url, { ...options, headers });
+              let data: T | null = null;
+              try {
+                data = await response.json();
+              } catch {
+                data = null;
+              }
+              if (!response.ok) {
+                reject(new Error((data as Record<string, unknown>)?.error as string || (data as Record<string, unknown>)?.detail as string || `HTTP ${response.status}`));
+              } else {
+                resolve(data as T);
+              }
+            } catch (error) {
+              reject(error);
+            }
           });
         });
       }
@@ -265,10 +278,6 @@ class APIService {
     return this.get<Category[]>('/products/categories/');
   }
 
-  async getSubcategories(categoryId: number): Promise<Category[]> {
-    return this.get<Category[]>(`/products/categories/${categoryId}/subcategories/`);
-  }
-
   // Orders endpoints
   async checkout(data: CheckoutRequest): Promise<CheckoutResponse> {
     return this.post<CheckoutResponse>('/orders/checkout/', data);
@@ -297,13 +306,19 @@ class APIService {
   }
 
   // Admin: All Orders
-  async getAllOrders(params?: { status?: string; search?: string; ordering?: string }): Promise<{ count: number; results: Order[] }> {
+  async getAllOrders(params?: { 
+    status?: string; 
+    search?: string; 
+    ordering?: string;
+    page?: number;
+  }): Promise<{ count: number; next: string | null; previous: string | null; results: Order[] }> {
     const searchParams = new URLSearchParams();
     if (params?.status) searchParams.append('status', params.status);
     if (params?.search) searchParams.append('search', params.search);
     if (params?.ordering) searchParams.append('ordering', params.ordering);
+    if (params?.page) searchParams.append('page', params.page.toString());
     const query = searchParams.toString();
-    return this.get<{ count: number; results: Order[] }>(`/admin/all-orders/${query ? `?${query}` : ''}`);
+    return this.get<{ count: number; next: string | null; previous: string | null; results: Order[] }>(`/admin/all-orders/${query ? `?${query}` : ''}`);
   }
 
   async getAdminOrder(id: number): Promise<Order> {
@@ -311,7 +326,7 @@ class APIService {
   }
 
   async updateAdminOrderStatus(id: number, status: string): Promise<Order> {
-    return this.patch<Order>(`/admin/all-orders/${id}/`, { status });
+    return this.post<Order>(`/admin/all-orders/${id}/update_status/`, { status });
   }
 
   async deleteAdminOrder(id: number): Promise<void> {
@@ -319,13 +334,19 @@ class APIService {
   }
 
   // Admin: Products
-  async getAdminProducts(params?: { search?: string; category?: number; ordering?: string }): Promise<{ count: number; results: Product[] }> {
+  async getAdminProducts(params?: { 
+    search?: string; 
+    category?: number; 
+    ordering?: string;
+    page?: number;
+  }): Promise<{ count: number; next: string | null; previous: string | null; results: Product[] }> {
     const searchParams = new URLSearchParams();
     if (params?.search) searchParams.append('search', params.search);
     if (params?.category) searchParams.append('category', params.category.toString());
     if (params?.ordering) searchParams.append('ordering', params.ordering);
+    if (params?.page) searchParams.append('page', params.page.toString());
     const query = searchParams.toString();
-    return this.get<{ count: number; results: Product[] }>(`/admin/products/${query ? `?${query}` : ''}`);
+    return this.get<{ count: number; next: string | null; previous: string | null; results: Product[] }>(`/admin/products/${query ? `?${query}` : ''}`);
   }
 
   async getAdminProduct(id: number): Promise<Product> {
@@ -365,8 +386,19 @@ class APIService {
   }
 
   // Admin: Categories
-  async getAdminCategories(): Promise<{ count: number; results: Category[] }> {
-    return this.get<{ count: number; results: Category[] }>('/admin/categories/');
+  async getAdminCategories(params?: {
+    search?: string;
+    ordering?: string;
+  }): Promise<Category[]> {
+    const searchParams = new URLSearchParams();
+    if (params?.search) searchParams.append('search', params.search);
+    if (params?.ordering) searchParams.append('ordering', params.ordering);
+    const query = searchParams.toString();
+    return this.get<Category[]>(`/admin/categories/${query ? `?${query}` : ''}`);
+  }
+
+  async getSubcategories(categoryId: number): Promise<Category[]> {
+    return this.get<Category[]>(`/admin/categories/${categoryId}/subcategories/`);
   }
 
   async createCategory(data: {
@@ -392,7 +424,7 @@ class APIService {
   }
 
   // Admin: Images
-  async uploadImage(file: File): Promise<{ id: number; image: string; alt_text: string; is_primary: boolean }> {
+  async uploadImage(file: File): Promise<{ id: number; image: string; alt_text: string; is_primary: boolean; created_at: string }> {
     const formData = new FormData();
     formData.append('image', file);
     
@@ -409,8 +441,11 @@ class APIService {
     return response.json();
   }
 
-  async getAdminImages(): Promise<{ id: number; image: string; alt_text: string; is_primary: boolean }[]> {
-    return this.get<{ id: number; image: string; alt_text: string; is_primary: boolean }[]>('/admin/product-images/');
+  async getAdminImages(params?: { page?: number }): Promise<{ count: number; next: string | null; previous: string | null; results: { id: number; image: string; alt_text: string; is_primary: boolean; created_at: string }[] }> {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    const query = searchParams.toString();
+    return this.get<{ count: number; next: string | null; previous: string | null; results: { id: number; image: string; alt_text: string; is_primary: boolean; created_at: string }[] }>(`/admin/product-images/${query ? `?${query}` : ''}`);
   }
 
   async deleteImage(id: number): Promise<void> {
@@ -418,12 +453,17 @@ class APIService {
   }
 
   // Admin: Users
-  async getAdminUsers(params?: { search?: string; ordering?: string }): Promise<{ count: number; results: User[] }> {
+  async getAdminUsers(params?: { 
+    search?: string; 
+    ordering?: string;
+    page?: number;
+  }): Promise<{ count: number; next: string | null; previous: string | null; results: User[] }> {
     const searchParams = new URLSearchParams();
     if (params?.search) searchParams.append('search', params.search);
     if (params?.ordering) searchParams.append('ordering', params.ordering);
+    if (params?.page) searchParams.append('page', params.page.toString());
     const query = searchParams.toString();
-    return this.get<{ count: number; results: User[] }>(`/admin/users/${query ? `?${query}` : ''}`);
+    return this.get<{ count: number; next: string | null; previous: string | null; results: User[] }>(`/admin/users/${query ? `?${query}` : ''}`);
   }
 
   async createUser(data: {
@@ -433,6 +473,7 @@ class APIService {
     password_confirm: string;
     first_name?: string;
     last_name?: string;
+    phone?: string;
     is_staff?: boolean;
     is_active?: boolean;
   }): Promise<User> {
@@ -442,6 +483,7 @@ class APIService {
   async updateUser(id: number, data: {
     first_name?: string;
     last_name?: string;
+    phone?: string;
     is_staff?: boolean;
     is_active?: boolean;
   }): Promise<User> {

@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Upload, Trash2, Image as ImageIcon } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Upload, Trash2, Image as ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { AdminLayout } from './AdminLayout';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { Label } from '../../components/ui/Label';
 import api, { getMediaUrl } from '../../services/api';
 
 interface UploadedImage {
@@ -10,6 +11,14 @@ interface UploadedImage {
   image: string;
   alt_text: string;
   is_primary: boolean;
+  created_at: string;
+}
+
+interface ImagesResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: UploadedImage[];
 }
 
 export function AdminImages() {
@@ -17,22 +26,44 @@ export function AdminImages() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [uploadingNew, setUploadingNew] = useState(false);
+  const isFirstLoad = useRef(true);
 
-  useEffect(() => {
-    fetchImages();
-  }, []);
+  const itemsPerPage = 20;
 
-  const fetchImages = async () => {
+  const fetchImages = useCallback(async (pageNum: number = 1) => {
     setLoading(true);
+    setError(null);
     try {
-      const data = await api.getAdminImages();
-      setImages(data);
-    } catch (error) {
-      console.error('Error fetching images:', error);
+      const data = await api.getAdminImages({ page: pageNum });
+      const imageList = data?.results || [];
+      setImages(imageList);
+      setTotalCount(data.count);
+      
+      if (imageList.length === 0 && data.count > 0 && pageNum > 1) {
+        const lastPage = Math.ceil(data.count / itemsPerPage);
+        if (lastPage > 0) {
+          setPage(lastPage);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching images:', err);
+      setError('Error al cargar imágenes');
+      setImages([]);
     } finally {
       setLoading(false);
+      isFirstLoad.current = false;
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchImages(page);
+  }, [page]);
+
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -48,7 +79,7 @@ export function AdminImages() {
     try {
       await api.uploadImage(selectedFile);
       setSelectedFile(null);
-      fetchImages();
+      fetchImages(page);
       alert('Imagen subida correctamente');
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -62,21 +93,17 @@ export function AdminImages() {
     if (!confirm('¿Estás seguro de eliminar esta imagen?')) return;
     try {
       await api.deleteImage(id);
-      setImages(images.filter(img => img.id !== id));
+      fetchImages(page);
     } catch (error) {
       console.error('Error deleting image:', error);
     }
   };
 
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      </AdminLayout>
-    );
-  }
+  const copyImageUrl = (url: string) => {
+    const fullUrl = getMediaUrl(url);
+    navigator.clipboard.writeText(fullUrl || url);
+    alert('URL copiada al portapapeles');
+  };
 
   return (
     <AdminLayout>
@@ -102,40 +129,93 @@ export function AdminImages() {
       </div>
 
       <div className="bg-white rounded-lg shadow">
-        <div className="p-4 border-b">
-          <h2 className="text-lg font-semibold">Imágenes ({images.length})</h2>
+        <div className="p-4 border-b flex justify-between items-center">
+          <h2 className="text-lg font-semibold">Imágenes ({totalCount})</h2>
+          <p className="text-sm text-gray-500">
+            Página {page} de {totalPages}
+          </p>
         </div>
-        {images.length === 0 ? (
+        {error && (
+          <div className="p-4 bg-red-100 text-red-700 text-center">
+            {error}
+          </div>
+        )}
+        {!error && loading ? (
+          <div className="p-8 text-center text-gray-500">
+            Cargando...
+          </div>
+        ) : !error && images.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             <ImageIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>No hay imágenes disponibles</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4">
-            {images.map(image => (
-              <div key={image.id} className="relative group border rounded-lg overflow-hidden">
-                <img
-                  src={getMediaUrl(image.image) ?? '/placeholder.png'}
-                  alt={image.alt_text || 'Imagen'}
-                  className="w-full h-32 object-cover"
-                />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">
+              {images.map(image => (
+                <div key={image.id} className="relative group border rounded-lg overflow-hidden">
+                  <img
+                    src={getMediaUrl(image.image) ?? '/placeholder.png'}
+                    alt={image.alt_text || 'Imagen'}
+                    className="w-full h-32 object-cover"
+                  />
+                  <div className="p-2 bg-gray-50">
+                    <p className="text-xs text-gray-500">ID: {image.id}</p>
+                  </div>
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(image.id)}
+                      className="w-full"
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Eliminar
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyImageUrl(image.image)}
+                      className="w-full bg-white text-gray-800 hover:bg-gray-100"
+                    >
+                      Copiar URL
+                    </Button>
+                  </div>
+                  {image.is_primary && (
+                    <span className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                      Principal
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+            
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between p-4 border-t">
+                <p className="text-sm text-gray-500">
+                  {totalCount} imágenes • Página {page} de {totalPages}
+                </p>
+                <div className="flex gap-2">
                   <Button
-                    variant="destructive"
+                    variant="outline"
                     size="sm"
-                    onClick={() => handleDelete(image.id)}
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1 || loading}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages || loading}
+                  >
+                    <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
-                {image.is_primary && (
-                  <span className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
-                    Principal
-                  </span>
-                )}
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </AdminLayout>

@@ -83,6 +83,7 @@ export interface OrderProduct {
 
 export interface Order {
   id: number;
+  user?: number;
   products: OrderProduct[];
   total_amount: string;
   status: 'pending' | 'processing' | 'completed' | 'cancelled';
@@ -91,6 +92,7 @@ export interface Order {
   customer_address: string;
   notes: string;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface OrdersResponse {

@@ -9,7 +9,8 @@ import {
   LogOut,
   Menu,
   X,
-  ChevronLeft
+  ChevronLeft,
+  Users
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -23,6 +24,7 @@ const navItems = [
   { path: '/panel/categories', icon: FolderTree, label: 'Categorías' },
   { path: '/panel/orders', icon: ShoppingCart, label: 'Pedidos' },
   { path: '/panel/images', icon: Image, label: 'Imágenes' },
+  { path: '/panel/users', icon: Users, label: 'Usuarios' },
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {

@@ -12,7 +12,7 @@ import { LoginPage } from './pages/Login';
 import { RegisterPage } from './pages/Register';
 import { ProfilePage } from './pages/Profile';
 import { OrdersPage } from './pages/Orders';
-import { AdminDashboard, AdminProducts, AdminCategories, AdminOrders, AdminImages } from './pages/admin';
+import { AdminDashboard, AdminProducts, AdminCategories, AdminOrders, AdminImages, AdminUsers } from './pages/admin';
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { isAdmin, loading } = useAuth();
@@ -74,6 +74,11 @@ function App() {
               <Route path="/panel/images" element={
                 <AdminRoute>
                   <AdminImages />
+                </AdminRoute>
+              } />
+              <Route path="/panel/users" element={
+                <AdminRoute>
+                  <AdminUsers />
                 </AdminRoute>
               } />
             </Routes>
